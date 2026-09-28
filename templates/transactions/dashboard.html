@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Dashboard | ApexBank{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+
+    <!-- Top Account Card Overview -->
+    <div class="account-hero-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+            <div>
+                <span class="stat-label" style="color: var(--accent-gold);">Available Liquidity</span>
+                <div class="balance-amount">₹ {{ account.balance|intcomma }}</div>
+            </div>
+            <div style="text-align: right;">
+                <span class="stat-label">Account Number</span>
+                <div class="account-number-display">{{ account.account_number }}</div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem;">
+            <div>
+                <span class="stat-label">Primary Holder</span>
+                <div style="font-weight: 600; font-size: 1.05rem; letter-spacing: 0.04em;">
+                    {{ user.get_full_name|default:user.username }}
+                </div>
+            </div>
+            <div>
+                <span class="stat-label">Status</span>
+                <span class="badge badge-deposit">Active</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Transaction Actions -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <a href="{% url 'transfer' %}" class="card" style="text-align: center; padding: 1.5rem; text-decoration: none; border: 1px solid var(--accent-gold-border);">
+            <div style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--accent-gold);">⇄</div>
+            <div style="font-weight: 600; font-family: var(--font-heading);">Send Money</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.25rem;">Peer-to-peer instant transfer</div>
+        </a>
+
+        <a href="{% url 'withdraw' %}" class="card" style="text-align: center; padding: 1.5rem; text-decoration: none;">
+            <div style="font-size: 1.8rem; margin-bottom: 0.5rem; color: #f87171;">⇣</div>
+            <div style="font-weight: 600; font-family: var(--font-heading);">Withdraw Cash</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.25rem;">Direct account debit</div>
+        </a>
+
+        <a href="{% url 'statement' %}" class="card" style="text-align: center; padding: 1.5rem; text-decoration: none;">
+            <div style="font-size: 1.8rem; margin-bottom: 0.5rem; color: #38bdf8;">📋</div>
+            <div style="font-weight: 600; font-family: var(--font-heading);">Account Statement</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.25rem;">Full transaction records</div>
+        </a>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h3 class="card-title">Recent Transactions</h3>
+                <p class="card-subtitle">Your latest debits and credits</p>
+            </div>
+            <a href="{% url 'statement' %}" class="btn btn-secondary btn-sm">View All Statements</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="classic-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Reference</th>
+                        <th>Type</th>
+                        <th>Details</th>
+                        <th style="text-align: right;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for txn in recent_transactions %}
+                        <tr>
+                            <td>{{ txn.timestamp|date:"d M Y, h:i A" }}</td>
+                            <td style="font-family: monospace; font-size: 0.8rem; color: var(--accent-gold);">
+                                {{ txn.reference_id }}
+                            </td>
+                            <td>
+                                {% if txn.transaction_type == 'DEPOSIT' %}
+                                    <span class="badge badge-deposit">Credit</span>
+                                {% elif txn.transaction_type == 'WITHDRAWAL' %}
+                                    <span class="badge badge-withdrawal">Debit</span>
+                                {% elif txn.sender_account == account %}
+                                    <span class="badge badge-withdrawal">Sent</span>
+                                {% else %}
+                                    <span class="badge badge-deposit">Received</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ txn.description|default:"Banking Transaction" }}
+                            </td>
+                            <td style="text-align: right; font-weight: 600; font-family: var(--font-serif); font-size: 1rem;">
+                                {% if txn.transaction_type == 'DEPOSIT' or txn.receiver_account == account %}
+                                    <span style="color: #34d399;">+ ₹ {{ txn.amount|intcomma }}</span>
+                                {% else %}
+                                    <span style="color: #f87171;">- ₹ {{ txn.amount|intcomma }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                No transaction history found yet. Once admin deposits funds or you make transfers, they will appear here.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

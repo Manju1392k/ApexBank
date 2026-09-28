@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Peer Transfer | ApexBank{% endblock %}
+
+{% block content %}
+<div style="max-width: 580px; margin: 0 auto;">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h2 class="card-title">Inter-Account Fund Transfer</h2>
+                <p class="card-subtitle">Instant peer-to-peer transfer to any ApexBank account</p>
+            </div>
+        </div>
+
+        <div style="background: rgba(18, 24, 36, 0.7); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span class="stat-label">Your Available Funds</span>
+                <div style="font-family: var(--font-serif); font-size: 1.4rem; font-weight: 700; color: #34d399; margin-top: 0.2rem;">
+                    ₹ {{ account.balance|intcomma }}
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <span class="stat-label">Debiting Account</span>
+                <div style="font-family: monospace; font-size: 0.95rem; color: var(--accent-gold);">
+                    {{ account.account_number }}
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'transfer' %}" id="transferForm">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="id_recipient">Recipient Account Number</label>
+                {{ form.recipient_account_number }}
+                <div class="form-help">Enter the 12-digit account number of the recipient.</div>
+                {% if form.recipient_account_number.errors %}
+                    <div class="form-error">{{ form.recipient_account_number.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_amount">Transfer Amount (₹)</label>
+                {{ form.amount }}
+                <div class="form-help">{{ form.amount.help_text }}</div>
+                {% if form.amount.errors %}
+                    <div class="form-error">{{ form.amount.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_description">Transfer Purpose / Remarks</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="form-error">{{ form.description.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary" style="flex: 1;">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="flex: 2;">Confirm & Authorize Transfer</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

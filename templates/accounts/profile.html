@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Account Profile & KYC | ApexBank{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h2 class="card-title">Customer Profile & KYC Identification</h2>
+                <p class="card-subtitle">Verified banking profile & regulatory credentials</p>
+            </div>
+            <span class="badge badge-deposit">Active & Verified</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem;">
+            <div>
+                <div style="margin-bottom: 1.5rem;">
+                    <span class="stat-label">Full Account Holder Name</span>
+                    <div style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary); margin-top: 0.25rem;">
+                        {{ user.get_full_name|default:user.username }}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <span class="stat-label">Primary Bank Account Number</span>
+                    <div class="account-number-display" style="font-size: 1.3rem; margin-top: 0.25rem;">
+                        {{ account.account_number }}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <span class="stat-label">Registered Email</span>
+                    <div style="color: var(--text-primary); margin-top: 0.25rem;">
+                        {{ user.email }}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <span class="stat-label">Registered Contact</span>
+                    <div style="color: var(--text-primary); margin-top: 0.25rem;">
+                        {{ account.phone_number }}
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(18, 24, 36, 0.6); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                <h3 style="font-family: var(--font-heading); font-size: 1rem; color: var(--accent-gold); margin-bottom: 1.25rem;">
+                    KYC Regulatory Details
+                </h3>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <span class="stat-label">Permanent Account Number (PAN)</span>
+                    <div style="font-size: 1.1rem; font-weight: 600; font-family: monospace; color: var(--text-primary); margin-top: 0.25rem;">
+                        {{ account.masked_pan }}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <span class="stat-label">Aadhar Identification Number</span>
+                    <div style="font-size: 1.1rem; font-weight: 600; font-family: monospace; color: var(--text-primary); margin-top: 0.25rem;">
+                        {{ account.masked_aadhar }}
+                    </div>
+                </div>
+
+                <div>
+                    <span class="stat-label">Account Inception Date</span>
+                    <div style="color: var(--text-secondary); margin-top: 0.25rem;">
+                        {{ account.created_at|date:"M d, Y h:i A" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end;">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

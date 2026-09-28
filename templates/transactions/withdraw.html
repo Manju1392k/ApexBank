@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Withdraw Funds | ApexBank{% endblock %}
+
+{% block content %}
+<div style="max-width: 540px; margin: 0 auto;">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h2 class="card-title">Account Cash Withdrawal</h2>
+                <p class="card-subtitle">Self cash disbursement from your primary balance</p>
+            </div>
+        </div>
+
+        <div style="background: rgba(18, 24, 36, 0.7); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span class="stat-label">Current Available Balance</span>
+                <div style="font-family: var(--font-serif); font-size: 1.4rem; font-weight: 700; color: #34d399; margin-top: 0.2rem;">
+                    ₹ {{ account.balance|intcomma }}
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <span class="stat-label">From Account</span>
+                <div style="font-family: monospace; font-size: 0.95rem; color: var(--accent-gold);">
+                    {{ account.account_number }}
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'withdraw' %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="id_amount">Withdrawal Amount (₹)</label>
+                {{ form.amount }}
+                <div class="form-help">{{ form.amount.help_text }}</div>
+                {% if form.amount.errors %}
+                    <div class="form-error">{{ form.amount.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_description">Withdrawal Memo (Optional)</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="form-error">{{ form.description.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary" style="flex: 1;">Cancel</a>
+                <button type="submit" class="btn btn-danger" style="flex: 2;">Confirm Withdrawal</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

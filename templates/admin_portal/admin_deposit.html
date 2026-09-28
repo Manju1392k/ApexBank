@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Authorized Cash Deposit | ApexBank Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 620px; margin: 0 auto;">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h2 class="card-title">Authorized Branch Cash Deposit</h2>
+                <p class="card-subtitle">Direct credit to a specified customer bank account</p>
+            </div>
+            <span class="nav-badge">ADMIN PRIVILEGE</span>
+        </div>
+
+        {% if target_account %}
+            <div style="background: rgba(18, 24, 36, 0.8); border: 1px solid var(--accent-gold-border); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+                <span class="stat-label">Designated Target Account</span>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.5rem;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.15rem; color: var(--text-primary);">
+                            {{ target_account.user.get_full_name|default:target_account.user.username }}
+                        </div>
+                        <div style="font-family: monospace; color: var(--accent-gold); font-size: 0.95rem; margin-top: 0.2rem;">
+                            A/C: {{ target_account.account_number }}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="stat-label">Existing Balance</span>
+                        <div style="font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; color: #34d399;">
+                            ₹ {{ target_account.balance|intcomma }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{% if target_account %}{% url 'admin_deposit_target' target_account.account_number %}{% else %}{% url 'admin_deposit' %}{% endif %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="id_target_account">Target Account Number</label>
+                {{ form.target_account_number }}
+                <div class="form-help">Money will strictly be credited only to this unique account.</div>
+                {% if form.target_account_number.errors %}
+                    <div class="form-error">{{ form.target_account_number.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_amount">Deposit Amount (₹)</label>
+                {{ form.amount }}
+                {% if form.amount.errors %}
+                    <div class="form-error">{{ form.amount.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_deposit_note">Branch Remarks / Deposit Slip Ref</label>
+                {{ form.deposit_note }}
+                {% if form.deposit_note.errors %}
+                    <div class="form-error">{{ form.deposit_note.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary" style="flex: 1;">Return to Console</a>
+                <button type="submit" class="btn btn-success" style="flex: 2;">Confirm Cash Deposit</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Admin Banking Command Portal | ApexBank{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+
+    <!-- Top Admin Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="font-family: var(--font-heading); font-size: 1.8rem; letter-spacing: 0.05em;">
+                Executive Banking Console
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                Account oversight, customer KYC management, and authorized cash deposits
+            </p>
+        </div>
+
+        <div>
+            <a href="{% url 'admin_deposit' %}" class="btn btn-primary">
+                + New Branch Deposit
+            </a>
+        </div>
+    </div>
+
+    <!-- Bank Aggregates Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">Total Customer Accounts</span>
+            <div class="stat-value">{{ total_accounts }}</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Total Deposits Executed</span>
+            <div class="stat-value" style="color: #38bdf8;">{{ total_deposits_count }}</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Total Bank Liquid Reserve</span>
+            <div class="stat-value" style="color: #34d399;">₹ {{ total_bank_reserve|intcomma }}</div>
+        </div>
+    </div>
+
+    <!-- Customer Accounts Overview Table -->
+    <div class="card">
+        <div class="card-header" style="flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 class="card-title">All Registered Bank Accounts</h2>
+                <p class="card-subtitle">Review PAN, Aadhar, account creation dates, and balance figures</p>
+            </div>
+
+            <!-- Search box -->
+            <form method="GET" action="{% url 'admin_dashboard' %}" style="display: flex; gap: 0.5rem; max-width: 380px; width: 100%;">
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ query }}" 
+                    class="form-input" 
+                    placeholder="Search A/C, Name, PAN, Aadhar..."
+                    style="padding: 0.5rem 0.75rem; font-size: 0.85rem;"
+                >
+                <button type="submit" class="btn btn-secondary btn-sm">Search</button>
+                {% if query %}
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-sm">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="table-responsive">
+            <table class="classic-table">
+                <thead>
+                    <tr>
+                        <th>Account Number</th>
+                        <th>Customer / Holder</th>
+                        <th>PAN Card</th>
+                        <th>Aadhar Number</th>
+                        <th>Created Date</th>
+                        <th style="text-align: right;">Current Balance</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for acc in accounts %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'admin_account_detail' acc.account_number %}" style="font-family: monospace; font-weight: 700; color: var(--accent-gold);">
+                                    {{ acc.account_number }}
+                                </a>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600; color: var(--text-primary);">
+                                    {{ acc.user.get_full_name|default:acc.user.username }}
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                    {{ acc.user.email }} &bull; {{ acc.phone_number }}
+                                </div>
+                            </td>
+                            <td style="font-family: monospace; font-size: 0.85rem; color: var(--text-primary);">
+                                {{ acc.pan_number }}
+                            </td>
+                            <td style="font-family: monospace; font-size: 0.85rem; color: var(--text-secondary);">
+                                {{ acc.aadhar_number }}
+                            </td>
+                            <td style="font-size: 0.82rem; color: var(--text-muted);">
+                                {{ acc.created_at|date:"d M Y, h:i A" }}
+                            </td>
+                            <td style="text-align: right; font-weight: 700; font-family: var(--font-serif); font-size: 1.05rem; color: #34d399;">
+                                ₹ {{ acc.balance|intcomma }}
+                            </td>
+                            <td style="text-align: center;">
+                                <div style="display: flex; gap: 0.4rem; justify-content: center;">
+                                    <a href="{% url 'admin_deposit_target' acc.account_number %}" class="btn btn-success btn-sm" title="Deposit Money to this account">
+                                        + Deposit
+                                    </a>
+                                    <a href="{% url 'admin_account_detail' acc.account_number %}" class="btn btn-secondary btn-sm" title="View Details">
+                                        Ledger
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                {% if query %}
+                                    No accounts matching "{{ query }}".
+                                {% else %}
+                                    No customer accounts registered yet.
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

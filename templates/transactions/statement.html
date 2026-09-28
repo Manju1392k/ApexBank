@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Account Statement | ApexBank{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header" style="flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 class="card-title">Official Account Statement</h2>
+            <p class="card-subtitle">Complete ledger of deposits, withdrawals, and inter-bank transfers</p>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <a href="{% url 'statement' %}" class="btn btn-sm {% if not current_filter %}btn-primary{% else %}btn-secondary{% endif %}">
+                All
+            </a>
+            <a href="{% url 'statement' %}?type=DEPOSIT" class="btn btn-sm {% if current_filter == 'DEPOSIT' %}btn-primary{% else %}btn-secondary{% endif %}">
+                Deposits
+            </a>
+            <a href="{% url 'statement' %}?type=WITHDRAWAL" class="btn btn-sm {% if current_filter == 'WITHDRAWAL' %}btn-primary{% else %}btn-secondary{% endif %}">
+                Withdrawals
+            </a>
+            <a href="{% url 'statement' %}?type=TRANSFER" class="btn btn-sm {% if current_filter == 'TRANSFER' %}btn-primary{% else %}btn-secondary{% endif %}">
+                Transfers
+            </a>
+        </div>
+    </div>
+
+    <!-- Account Details Summary Row -->
+    <div style="background: rgba(18, 24, 36, 0.5); padding: 1rem 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <span class="stat-label">A/C Number:</span>
+            <span style="font-family: monospace; color: var(--accent-gold); font-weight: 600; margin-left: 0.4rem;">{{ account.account_number }}</span>
+        </div>
+        <div>
+            <span class="stat-label">Holder:</span>
+            <span style="color: var(--text-primary); font-weight: 600; margin-left: 0.4rem;">{{ user.get_full_name|default:user.username }}</span>
+        </div>
+        <div>
+            <span class="stat-label">Current Balance:</span>
+            <span style="color: #34d399; font-weight: 700; margin-left: 0.4rem; font-family: var(--font-serif);">₹ {{ account.balance|intcomma }}</span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="classic-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Reference ID</th>
+                    <th>Activity</th>
+                    <th>Particulars</th>
+                    <th style="text-align: right;">Debit / Credit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                    <tr>
+                        <td>{{ txn.timestamp|date:"d M Y, h:i:s A" }}</td>
+                        <td style="font-family: monospace; font-size: 0.8rem; color: var(--accent-gold);">
+                            {{ txn.reference_id }}
+                        </td>
+                        <td>
+                            {% if txn.transaction_type == 'DEPOSIT' %}
+                                <span class="badge badge-deposit">Branch Deposit</span>
+                            {% elif txn.transaction_type == 'WITHDRAWAL' %}
+                                <span class="badge badge-withdrawal">Cash Withdrawal</span>
+                            {% elif txn.sender_account == account %}
+                                <span class="badge badge-withdrawal">Fund Outflow</span>
+                            {% else %}
+                                <span class="badge badge-deposit">Fund Inflow</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if txn.transaction_type == 'TRANSFER' %}
+                                {% if txn.sender_account == account %}
+                                    To: {{ txn.receiver_account.user.get_full_name|default:txn.receiver_account.account_number }} (A/C: {{ txn.receiver_account.account_number }})
+                                {% else %}
+                                    From: {{ txn.sender_account.user.get_full_name|default:txn.sender_account.account_number }} (A/C: {{ txn.sender_account.account_number }})
+                                {% endif %}
+                                {% if txn.description %}<br><span style="font-size: 0.78rem; color: var(--text-muted);">{{ txn.description }}</span>{% endif %}
+                            {% else %}
+                                {{ txn.description|default:"Standard Banking Transaction" }}
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right; font-weight: 600; font-family: var(--font-serif); font-size: 1rem;">
+                            {% if txn.transaction_type == 'DEPOSIT' or txn.receiver_account == account %}
+                                <span style="color: #34d399;">+ ₹ {{ txn.amount|intcomma }}</span>
+                            {% else %}
+                                <span style="color: #f87171;">- ₹ {{ txn.amount|intcomma }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            No statement records matching the current filter.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

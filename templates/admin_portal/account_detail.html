@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Account Ledger & Audit | ApexBank Admin{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+
+    <!-- Top Account KYC Overview -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h2 class="card-title">Comprehensive Customer Ledger & KYC Record</h2>
+                <p class="card-subtitle">Audited record for account {{ account.account_number }}</p>
+            </div>
+            <div>
+                <a href="{% url 'admin_deposit_target' account.account_number %}" class="btn btn-success btn-sm">
+                    + Deposit Money Here
+                </a>
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-sm">
+                    Back to Accounts
+                </a>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; background: rgba(18, 24, 36, 0.6); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <div>
+                <span class="stat-label">Holder Name</span>
+                <div style="font-weight: 700; color: var(--text-primary); margin-top: 0.2rem;">
+                    {{ account.user.get_full_name|default:account.user.username }}
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ account.user.email }}</div>
+            </div>
+
+            <div>
+                <span class="stat-label">Current Balance</span>
+                <div style="font-family: var(--font-serif); font-size: 1.4rem; font-weight: 700; color: #34d399; margin-top: 0.2rem;">
+                    ₹ {{ account.balance|intcomma }}
+                </div>
+            </div>
+
+            <div>
+                <span class="stat-label">PAN Number</span>
+                <div style="font-family: monospace; font-size: 1.05rem; font-weight: 600; color: var(--accent-gold); margin-top: 0.2rem;">
+                    {{ account.pan_number }}
+                </div>
+            </div>
+
+            <div>
+                <span class="stat-label">Aadhar Number</span>
+                <div style="font-family: monospace; font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-top: 0.2rem;">
+                    {{ account.aadhar_number }}
+                </div>
+            </div>
+
+            <div>
+                <span class="stat-label">Created At</span>
+                <div style="color: var(--text-secondary); margin-top: 0.2rem;">
+                    {{ account.created_at|date:"d M Y, h:i A" }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Transaction Audit Log for this Account -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h3 class="card-title">Audited Transaction History</h3>
+                <p class="card-subtitle">Chronological ledger entries linked with this account</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="classic-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Reference</th>
+                        <th>Type</th>
+                        <th>Description / Initiator</th>
+                        <th style="text-align: right;">Amount Flow</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for txn in transactions %}
+                        <tr>
+                            <td>{{ txn.timestamp|date:"d M Y, h:i:s A" }}</td>
+                            <td style="font-family: monospace; color: var(--accent-gold);">{{ txn.reference_id }}</td>
+                            <td>
+                                {% if txn.transaction_type == 'DEPOSIT' %}
+                                    <span class="badge badge-deposit">Deposit</span>
+                                {% elif txn.transaction_type == 'WITHDRAWAL' %}
+                                    <span class="badge badge-withdrawal">Withdrawal</span>
+                                {% else %}
+                                    <span class="badge badge-transfer">Transfer</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ txn.description }}
+                                {% if txn.initiated_by %}
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                        Initiated by: {{ txn.initiated_by.username }}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: right; font-weight: 700; font-family: var(--font-serif); font-size: 1rem;">
+                                {% if txn.transaction_type == 'DEPOSIT' or txn.receiver_account == account %}
+                                    <span style="color: #34d399;">+ ₹ {{ txn.amount|intcomma }}</span>
+                                {% else %}
+                                    <span style="color: #f87171;">- ₹ {{ txn.amount|intcomma }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="empty-state">No transaction history exists for this account.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
