@@ -1,4 +1,4 @@
-name: Deploy ApexBank to AWS
+name: Deploy Django to AWS
 
 on:
   push:
@@ -18,12 +18,20 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            mkdir -p /home/ubuntu/ApexBank
             cd /home/ubuntu/ApexBank
-            git pull origin main
             
-            # Inject dynamic database host from GitHub secrets into environment
+            if [ -d ".git" ]; then
+              git pull origin main
+            else
+              git clone https://github.com/Manju1392k/ApexBank.git .
+            fi
+            
+            # Safely inject environment variables into a production .env file
             echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
             
-            # Restart Docker containers smoothly
+            # Spin up containers securely
             sudo docker compose down
             sudo docker compose up -d --build
