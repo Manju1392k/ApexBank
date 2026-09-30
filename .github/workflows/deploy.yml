@@ -11,26 +11,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Deploy to EC2 via SSH
+      - name: Copy Files to EC2 via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "."
+          target: "/home/ubuntu/ApexBank"
+
+      - name: Run Docker Compose on EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            mkdir -p /home/ubuntu/ApexBank
             cd /home/ubuntu/ApexBank
-            
-            if [ -d ".git" ]; then
-              git pull origin main
-            else
-              git clone https://github.com/Manju1392k/ApexBank.git .
-            fi
             
             # Safely inject environment variables into a production .env file
             echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+            echo "ALLOWED_HOSTS=*" >> .env
             
             # Spin up containers securely
             sudo docker compose down
