@@ -5,3 +5,4 @@ cryptography>=41.0.0
 python-dotenv>=1.0.0
 gunicorn
 mysqlclient
+whitenoise==6.12.0
