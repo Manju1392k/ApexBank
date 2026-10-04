@@ -128,6 +128,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images) serving static files with whitenois without need of s3 storage.
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]   # <-- add this
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Authentication Redirects
