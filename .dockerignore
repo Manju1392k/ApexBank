@@ -1,0 +1,10 @@
+.git
+.github
+.env
+*.pem
+__pycache__/
+*.pyc
+venv/
+.venv/
+staticfiles/
+docker-compose.yml

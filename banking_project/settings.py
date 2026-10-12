@@ -29,6 +29,23 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+def env_list(name, default=""):
+    return [v.strip() for v in os.environ.get(name, default).split(",") if v.strip()]
+
+def env_bool(name, default):
+    return os.environ.get(name, str(default)).lower() in ("1", "true", "yes")
+
+# TLS ends at the ALB; trust the header it adds.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", True)
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_AGE = 1800            # 30 minutes; sensible for a banking app
+SECURE_HSTS_SECONDS = 3600           # raise to 31536000 once everything is stable
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
