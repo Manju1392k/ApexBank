@@ -1,0 +1,13 @@
+name: OIDC debug (run manually)
+on: workflow_dispatch
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  show:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print the OIDC claims GitHub will send
+        run: |
+          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+          echo "$TOKEN" | python3 -c "import sys,json,base64; p=sys.stdin.read().strip().split('.')[1]; p+='='*(-len(p)%4); c=json.loads(base64.urlsafe_b64decode(p)); print('sub =',c['sub']); print('aud =',c['aud'])"
