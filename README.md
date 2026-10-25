@@ -175,4 +175,4 @@ Roughly **$0.11 per hour** while the stack is running and **$2.70 per day**, **$
 
 ## Author
 
-**[Sreeram Manjnath Reddy]** · [LinkedIn Profile link]
+**Sreeram Manjnath Reddy** · LinkedIn Profile link
