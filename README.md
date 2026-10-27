@@ -6,8 +6,8 @@ A small banking web application deployed on AWS as a hands on **cloud and DevOps
 
 | | |
 |---|---|
-| 🎥 **Demo video** | [link] |
-| 💼 **LinkedIn post** | [link] |
+| 🎥 **Demo video** | [link](https://lnkd.in/p/dByfhUkg) |
+| 💼 **LinkedIn post** | [[link](https://lnkd.in/p/dByfhUkg)] |
 
 > **Live demo status:** The site is **not kept running** to avoid AWS costs. I build the stack, test it, record it, and tear everything down. Please see the demo video.
 
@@ -175,4 +175,4 @@ Roughly **$0.11 per hour** while the stack is running and **$2.70 per day**, **$
 
 ## Author
 
-**Sreeram Manjnath Reddy** · LinkedIn Profile link
+**Sreeram Manjnath Reddy** · LinkedIn Profile Link: (https://www.linkedin.com/in/manjunath139/)
