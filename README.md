@@ -7,7 +7,7 @@ A small banking web application deployed on AWS as a hands on **cloud and DevOps
 | | |
 |---|---|
 | 🎥 **Demo video** | [link](https://lnkd.in/p/dByfhUkg) |
-| 💼 **LinkedIn post** | [[link](https://lnkd.in/p/dByfhUkg)] |
+| 💼 **LinkedIn post** | [link](https://lnkd.in/p/dByfhUkg) |
 
 > **Live demo status:** The site is **not kept running** to avoid AWS costs. I build the stack, test it, record it, and tear everything down. Please see the demo video.
 
